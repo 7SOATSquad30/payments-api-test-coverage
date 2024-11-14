@@ -74,9 +74,11 @@ test {
 }
 
 jacocoTestReport {
-    dependsOn test // garante que os testes são executados antes do relatório
+    dependsOn test
     reports {
-        xml.required = true // necessário para integração e leitura da cobertura no GitHub Actions
+        xml.required = true
         html.required = true
     }
+    // Habilita o JaCoCo para continuar com o relatório, mesmo se alguns testes falharem
+    onlyIf { test.state.failure != null }
 }
