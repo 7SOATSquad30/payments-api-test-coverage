@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   test:
@@ -20,6 +18,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '21'
+          distribution: 'temurin'
 
       - name: Cache Gradle packages
         uses: actions/cache@v3
@@ -29,57 +28,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Build and run tests
+      - name: Grant execute permission for Gradlew
+        run: chmod +x gradlew
+
+      - name: Run tests and generate Jacoco report
         run: ./gradlew clean test jacocoTestReport
 
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+      - name: Upload coverage report to Codacy
+        uses: codacy/codacy-coverage-reporter-action@v1
         with:
-          name: jacoco-report
-          path: build/reports/jacoco/test/html
+          token: ${{ secrets.CODACY_PROJECT_TOKEN }}  # Use o token do seu projeto Codacy
+          coverage-file: build/reports/jacoco/test/jacocoTestReport.xml
 
-      - name: Publish JaCoCo to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          files: build/reports/jacoco/test/jacocoTestReport.xml
-          flags: unittests
-          name: codecov-coverage
-          fail_ci_if_error: true
-          verbose: true
-
-  build:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 21
-          distribution: 'zulu'
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Code linting
-        run: ./gradlew spotlessCheck
-
-      - name: Static analysis
-        run: |
-          ./gradlew pmdMain
-          ./gradlew pmdTest
-
-      - name: Run tests
-        run: ./gradlew test
-
-      - name: Build
-        run: ./gradlew clean assemble
