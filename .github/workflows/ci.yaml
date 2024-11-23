@@ -22,25 +22,27 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Grant execute permission for Gradlew
-        run: chmod +x gradlew
+        run: chmod +x ./gradlew
 
-      - name: Run tests and generate Jacoco report
-        run: ./gradlew clean test jacocoTestReport
+      - name: Run tests with Kover coverage
+        run: |
+          ./gradlew clean check
+          echo "Coverage validation passed. Reports generated at:"
+          ls -R build/reports/kover || echo "No Kover reports found."
 
-      - name: Upload coverage report to Codacy
-        uses: codacy/codacy-coverage-reporter-action@v1
-        with:
-          token: ${{ secrets.CODACY_PROJECT_TOKEN }}  # Use o token do seu projeto Codacy
-          coverage-file: build/reports/jacoco/test/jacocoTestReport.xml
+      - name: Upload Kover XML report to Codacy
+        run: |
+          REPORT_PATH=$(find build/reports/kover -name "*.xml" | head -n 1)
+          if [ -z "$REPORT_PATH" ]; then
+            echo "Coverage report not found."
+            exit 1
+          fi
+          echo "Uploading coverage report to Codacy from $REPORT_PATH"
+          curl -Ls https://coverage.codacy.com/get.sh | bash
+          ./codacy-coverage-reporter report \
+            --token ${{ secrets.CODACY_PROJECT_TOKEN }} \
+            --coverage-reports "$REPORT_PATH"
   
   build:
     runs-on: ubuntu-latest
