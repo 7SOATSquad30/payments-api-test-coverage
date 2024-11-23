@@ -37,7 +37,7 @@ jobs:
         run: |
           ./gradlew clean test jacocoTestReport
           echo "Searching for the JaCoCo XML report..."
-          REPORT_PATH=$(find /home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test -name "*.xml" | head -n 1)
+          REPORT_PATH=$(find /reports/jacoco/test -name "*.xml" | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "No XML report found in the directory."
             exit 1
@@ -46,9 +46,11 @@ jobs:
           echo "Printing JaCoCo XML report content:"
           cat "$REPORT_PATH"
 
+/reports/jacoco/test/jacocoTestReport.xml
+
       - name: Validate Coverage
         run: |
-          REPORT_PATH=$(find /home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test -name "*.xml" | head -n 1)
+          REPORT_PATH=$(find /reports/jacoco/test -name "*.xml" | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "Coverage report not found."
             exit 1
