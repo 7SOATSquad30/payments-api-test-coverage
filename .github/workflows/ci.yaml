@@ -48,12 +48,12 @@ jobs:
 
       - name: Validate Coverage
         run: |
-          REPORT_PATH="/home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test"
-          if [ ! -f $REPORT_PATH ]; then
-            echo "Coverage report not found: $REPORT_PATH"
+          REPORT_PATH=$(find /home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test -name "*.xml" | head -n 1)
+          if [ -z "$REPORT_PATH" ]; then
+            echo "Coverage report not found."
             exit 1
           fi
-          COVERAGE=$(grep -oP 'coverage="\K[0-9.]+' $REPORT_PATH | awk '{sum+=$1} END {print sum}')
+          COVERAGE=$(grep -oP 'coverage="\K[0-9.]+' "$REPORT_PATH" | awk '{sum+=$1} END {print sum}')
           echo "Coverage detected: $COVERAGE%"
           if (( $(echo "$COVERAGE < 50.0" | bc -l) )); then
             echo "Coverage is below 50%! Failing the job."
@@ -62,11 +62,15 @@ jobs:
 
       - name: Upload coverage report to Codacy
         run: |
+          REPORT_PATH=$(find /home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test -name "*.xml" | head -n 1)
+          if [ -z "$REPORT_PATH" ]; then
+            echo "No coverage report found to upload."
+            exit 1
+          fi
           curl -Ls https://coverage.codacy.com/get.sh | bash
           ./codacy-coverage-reporter report \
             --token ${{ secrets.CODACY_PROJECT_TOKEN }} \
-            --coverage-reports /home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test/index.html
-  
+            --coverage-reports "$REPORT_PATH"  
   build:
     runs-on: ubuntu-latest
     
