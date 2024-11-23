@@ -4,7 +4,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.6'
     id 'com.diffplug.spotless' version '6.25.0'
     id 'pmd'
-    id 'jacoco'
+    id 'org.jetbrains.kotlinx.kover' version '0.7.3'
 }
 
 group = 'br.com.fiap.grupo30.fastfood'
@@ -64,21 +64,19 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-jacoco {
-    toolVersion = "0.8.7"
-}
-
-test {
-    useJUnitPlatform() // caso esteja usando JUnit 5
-    finalizedBy jacocoTestReport // gera o relatório após os testes
-}
-
-jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
-        html.required = true
+kover {
+    // Gera os relatórios de cobertura em XML e HTML
+    xmlReport {
+        onCheck = true // Valida cobertura automaticamente no 'check'
     }
-    // Habilita o JaCoCo para continuar com o relatório, mesmo se alguns testes falharem
-    onlyIf { test.state.failure != null }
+    verify {
+        rule {
+            name = "Minimum code coverage"
+            bound {
+                minValue = 50.0 // Define o mínimo de cobertura exigido
+            }
+        }
+    }
 }
+
+tasks.check.dependsOn("koverXmlReport", "koverHtmlReport") // Garante que os relatórios sejam gerados no check
