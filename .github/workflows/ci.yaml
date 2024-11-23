@@ -46,8 +46,6 @@ jobs:
           echo "Printing JaCoCo XML report content:"
           cat "$REPORT_PATH"
 
-/reports/jacoco/test/jacocoTestReport.xml
-
       - name: Validate Coverage
         run: |
           REPORT_PATH=$(find /reports/jacoco/test -name "*.xml" | head -n 1)
