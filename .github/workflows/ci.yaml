@@ -60,7 +60,7 @@ jobs:
           curl -Ls https://coverage.codacy.com/get.sh | bash
           ./codacy-coverage-reporter report \
             --token ${{ secrets.CODACY_PROJECT_TOKEN }} \
-            --coverage-reports /home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test
+            --coverage-reports /home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test/index.html
   
   build:
     runs-on: ubuntu-latest
