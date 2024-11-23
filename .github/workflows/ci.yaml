@@ -39,17 +39,17 @@ jobs:
             exit 1
           fi
           echo "Found Kover XML report at: $REPORT_PATH"
-          
-          # Extract coverage percentage using XML tools
-          COVERAGE=$(xmllint --xpath "string(//counter[@type='INSTRUCTION']/@covered)" "$REPORT_PATH")
-          TOTAL=$(xmllint --xpath "string(//counter[@type='INSTRUCTION']/@total)" "$REPORT_PATH")
-          if [ -z "$COVERAGE" ] || [ -z "$TOTAL" ]; then
+
+          # Extract coverage percentage using grep and awk
+          COVERED=$(grep -oP 'covered="\K[0-9]+' "$REPORT_PATH" | awk '{sum+=$1} END {print sum}')
+          TOTAL=$(grep -oP 'total="\K[0-9]+' "$REPORT_PATH" | awk '{sum+=$1} END {print sum}')
+          if [ -z "$COVERED" ] || [ -z "$TOTAL" ]; then
             echo "Failed to extract coverage data from the report."
             exit 1
           fi
-          PERCENTAGE=$(echo "scale=2; 100 * $COVERAGE / $TOTAL" | bc)
+          PERCENTAGE=$(echo "scale=2; 100 * $COVERED / $TOTAL" | bc)
           echo "Coverage: $PERCENTAGE%"
-          
+
           # Validate coverage percentage
           MINIMUM=50.0
           if (( $(echo "$PERCENTAGE < $MINIMUM" | bc -l) )); then
