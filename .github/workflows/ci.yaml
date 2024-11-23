@@ -28,12 +28,39 @@ jobs:
       - name: Run tests with Kover coverage
         run: |
           ./gradlew clean check
-          echo "Coverage validation passed. Reports generated at:"
+          echo "Kover reports generated at:"
           ls -R build/reports/kover || echo "No Kover reports found."
+
+      - name: Extract and display coverage percentage
+        run: |
+          REPORT_PATH=$(find build/reports/kover -name "report.xml" | head -n 1)
+          if [ -z "$REPORT_PATH" ]; then
+            echo "Kover coverage report not found!"
+            exit 1
+          fi
+          echo "Found Kover XML report at: $REPORT_PATH"
+          
+          # Extract coverage percentage using XML tools
+          COVERAGE=$(xmllint --xpath "string(//counter[@type='INSTRUCTION']/@covered)" "$REPORT_PATH")
+          TOTAL=$(xmllint --xpath "string(//counter[@type='INSTRUCTION']/@total)" "$REPORT_PATH")
+          if [ -z "$COVERAGE" ] || [ -z "$TOTAL" ]; then
+            echo "Failed to extract coverage data from the report."
+            exit 1
+          fi
+          PERCENTAGE=$(echo "scale=2; 100 * $COVERAGE / $TOTAL" | bc)
+          echo "Coverage: $PERCENTAGE%"
+          
+          # Validate coverage percentage
+          MINIMUM=50.0
+          if (( $(echo "$PERCENTAGE < $MINIMUM" | bc -l) )); then
+            echo "Coverage is below the minimum required: $MINIMUM%!"
+            exit 1
+          fi
+          echo "Coverage validation passed with $PERCENTAGE%."
 
       - name: Upload Kover XML report to Codacy
         run: |
-          REPORT_PATH=$(find build/reports/kover -name "*.xml" | head -n 1)
+          REPORT_PATH=$(find build/reports/kover -name "report.xml" | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "Coverage report not found."
             exit 1
@@ -43,7 +70,7 @@ jobs:
           ./codacy-coverage-reporter report \
             --token ${{ secrets.CODACY_PROJECT_TOKEN }} \
             --coverage-reports "$REPORT_PATH"
-  
+
   build:
     runs-on: ubuntu-latest
     
