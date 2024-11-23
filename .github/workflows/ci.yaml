@@ -33,14 +33,14 @@ jobs:
 
       - name: Extract and display coverage percentage
         run: |
-          REPORT_PATH=$(find build/reports/kover -name "report.xml" | head -n 1)
+          REPORT_PATH=$(find build/reports/kover/html -name "index.html" | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "Kover coverage report not found!"
             exit 1
           fi
-          echo "Found Kover XML report at: $REPORT_PATH"
+          echo "Found Kover HTML report at: $REPORT_PATH"
           
-          # Display the content of the XML report for debugging
+          # Display the content of the HTML report for debugging
           echo "Content of $REPORT_PATH:"
           cat "$REPORT_PATH"
 
