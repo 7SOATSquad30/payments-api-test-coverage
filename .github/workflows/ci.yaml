@@ -58,18 +58,6 @@ jobs:
           fi
           echo "Coverage validation passed with $PERCENTAGE%."
 
-      - name: Upload Kover XML report to Codacy
-        run: |
-          REPORT_PATH=$(find build/reports/kover -name "report.xml" | head -n 1)
-          if [ -z "$REPORT_PATH" ]; then
-            echo "Coverage report not found."
-            exit 1
-          fi
-          echo "Uploading coverage report to Codacy from $REPORT_PATH"
-          curl -Ls https://coverage.codacy.com/get.sh | bash
-          ./codacy-coverage-reporter report \
-            --token ${{ secrets.CODACY_PROJECT_TOKEN }} \
-            --coverage-reports "$REPORT_PATH"
   build:
     runs-on: ubuntu-latest
     
