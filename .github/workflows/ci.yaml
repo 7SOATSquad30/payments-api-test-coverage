@@ -73,6 +73,9 @@ jobs:
       - name: Raise infra
         run: make infrastructure/up
 
+      - name: Grant execute permission for Gradlew
+        run: chmod +x gradlew
+
       - name: Code linting
         run: ./gradlew spotlessCheck
 
