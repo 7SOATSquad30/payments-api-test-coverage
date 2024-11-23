@@ -36,11 +36,6 @@ jobs:
       - name: Run tests and generate JaCoCo report
         run: ./gradlew clean test jacocoTestReport
 
-      - name: List All Files in /home
-        run: |
-          echo "Listing all files and directories in /home:"
-          ls -R /home
-
       - name: Validate Coverage
         run: |
           REPORT_PATH="/home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test"
