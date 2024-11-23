@@ -74,8 +74,9 @@ test {
 }
 
 jacocoTestReport {
+    dependsOn test
     reports {
-        xml.required = true // Habilita a geração do XML
+        xml.required = true // Gera o relatório XML
         xml.outputLocation = file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
         html.required = true
     }
