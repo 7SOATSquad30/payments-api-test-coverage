@@ -25,6 +25,12 @@ jobs:
       - name: Grant execute permission for Gradlew
         run: chmod +x ./gradlew
 
+      - name: Run Spotless Apply
+        run: ./gradlew spotlessApply
+
+      - name: Run Spotless Check
+        run: ./gradlew spotlessCheck
+  
       - name: Run tests with Kover coverage
         run: |
           ./gradlew clean check
