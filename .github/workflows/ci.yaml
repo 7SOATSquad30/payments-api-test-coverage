@@ -38,6 +38,10 @@ jobs:
 
       - name: Validate Coverage
         run: |
+          if [ ! -f build/reports/jacoco/test/jacocoTestReport.xml ]; then
+            echo "Coverage report not found: build/reports/jacoco/test/jacocoTestReport.xml"
+            exit 1
+          fi
           COVERAGE=$(grep -oP 'coverage="\K[0-9.]+' build/reports/jacoco/test/jacocoTestReport.xml | awk '{sum+=$1} END {print sum}')
           echo "Coverage detected: $COVERAGE%"
           if (( $(echo "$COVERAGE < 50.0" | bc -l) )); then
