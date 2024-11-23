@@ -44,16 +44,6 @@ jobs:
           echo "Content of $REPORT_PATH:"
           cat "$REPORT_PATH"
 
-          # Extract coverage percentage using grep and awk
-          COVERED=$(grep -oP 'covered="\K[0-9]+' "$REPORT_PATH" | awk '{sum+=$1} END {print sum}')
-          TOTAL=$(grep -oP 'total="\K[0-9]+' "$REPORT_PATH" | awk '{sum+=$1} END {print sum}')
-          if [ -z "$COVERED" ] || [ -z "$TOTAL" ] || [ "$TOTAL" -eq 0 ]; then
-            echo "Failed to extract coverage data from the report."
-            exit 1
-          fi
-          PERCENTAGE=$(echo "scale=2; 100 * $COVERED / $TOTAL" | bc)
-          echo "Coverage: $PERCENTAGE%"
-
           # Validate coverage percentage
           MINIMUM=50.0
           if (( $(echo "$PERCENTAGE < $MINIMUM" | bc -l) )); then
