@@ -33,11 +33,11 @@ jobs:
       - name: Grant execute permission for Gradlew
         run: chmod +x gradlew
 
-      - name: Run tests and generate Jacoco report
-        run: ./gradlew clean test jacocoTestReport --info
+      - name: Run tests and generate JaCoCo report
+        run: ./gradlew clean test jacocoTestReport
 
-      - name: List JaCoCo Report Files
-        run: ls -R build/reports/jacoco/test
+      - name: List All Files in Build Directory
+        run: ls -R build
 
       - name: Validate Coverage
         run: |
