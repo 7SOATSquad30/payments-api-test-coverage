@@ -74,13 +74,9 @@ test {
 }
 
 jacocoTestReport {
-    dependsOn test
     reports {
-        xml.required = true
-        xml.outputLocation = file("$buildDir/custom-reports/jacoco/testReport.xml") // Local customizado para XML
+        xml.required = true // Habilita a geração do XML
+        xml.outputLocation = file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
         html.required = true
-        html.outputLocation = file("$buildDir/custom-reports/jacoco/html") // Local customizado para HTML
     }
-    // Habilita o JaCoCo para continuar com o relatório, mesmo se alguns testes falharem
-    onlyIf { test.state.failure != null }
 }
