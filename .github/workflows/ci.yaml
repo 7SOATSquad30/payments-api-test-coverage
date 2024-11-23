@@ -36,13 +36,21 @@ jobs:
       - name: Run tests and generate Jacoco report
         run: ./gradlew clean test jacocoTestReport
 
-      - name: Upload coverage report to Codacy with coverage check
+      - name: Validate Coverage
+        run: |
+          COVERAGE=$(grep -oP 'coverage="\K[0-9.]+' build/reports/jacoco/test/jacocoTestReport.xml | awk '{sum+=$1} END {print sum}')
+          echo "Coverage detected: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 50.0" | bc -l) )); then
+            echo "Coverage is below 50%! Failing the job."
+            exit 1
+          fi
+
+      - name: Upload coverage report to Codacy
         run: |
           curl -Ls https://coverage.codacy.com/get.sh | bash
           ./codacy-coverage-reporter report \
             --token ${{ secrets.CODACY_PROJECT_TOKEN }} \
-            --coverage-reports build/reports/jacoco/test/jacocoTestReport.xml \
-            --coverage-percentage 50
+            --coverage-reports build/reports/jacoco/test/jacocoTestReport.xml
   
   build:
     runs-on: ubuntu-latest
