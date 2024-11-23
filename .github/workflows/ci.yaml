@@ -36,8 +36,10 @@ jobs:
       - name: Run tests and generate JaCoCo report
         run: ./gradlew clean test jacocoTestReport
 
-      - name: List All Files in Build Directory
-        run: ls -R build
+      - name: List All Files in /home
+        run: |
+          echo "Listing all files and directories in /home:"
+          ls -R /home
 
       - name: Validate Coverage
         run: |
