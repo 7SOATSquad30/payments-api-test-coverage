@@ -41,11 +41,12 @@ jobs:
 
       - name: Validate Coverage
         run: |
-          if [ ! -f build/custom-reports/jacoco/testReport.xml ]; then
-            echo "Coverage report not found: build/custom-reports/jacoco/testReport.xml"
+          REPORT_PATH="/home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test/jacocoTestReport.xml"
+          if [ ! -f $REPORT_PATH ]; then
+            echo "Coverage report not found: $REPORT_PATH"
             exit 1
           fi
-          COVERAGE=$(grep -oP 'coverage="\K[0-9.]+' build/custom-reports/jacoco/testReport.xml | awk '{sum+=$1} END {print sum}')
+          COVERAGE=$(grep -oP 'coverage="\K[0-9.]+' $REPORT_PATH | awk '{sum+=$1} END {print sum}')
           echo "Coverage detected: $COVERAGE%"
           if (( $(echo "$COVERAGE < 50.0" | bc -l) )); then
             echo "Coverage is below 50%! Failing the job."
@@ -57,7 +58,7 @@ jobs:
           curl -Ls https://coverage.codacy.com/get.sh | bash
           ./codacy-coverage-reporter report \
             --token ${{ secrets.CODACY_PROJECT_TOKEN }} \
-            --coverage-reports build/custom-reports/jacoco/testReport.xml
+            --coverage-reports /home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test/jacocoTestReport.xml
   
   build:
     runs-on: ubuntu-latest
