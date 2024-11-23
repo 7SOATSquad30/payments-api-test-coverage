@@ -92,6 +92,9 @@ jobs:
       - name: Grant execute permission for Gradlew
         run: chmod +x gradlew
 
+      - name: Run Spotless Apply
+        run: ./gradlew spotlessApply
+  
       - name: Code linting
         run: ./gradlew spotlessCheck
 
