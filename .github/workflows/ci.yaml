@@ -36,8 +36,10 @@ jobs:
       - name: Run tests and generate JaCoCo report
         run: |
           ./gradlew clean test jacocoTestReport
+          echo "Listing files in build/reports directory to verify output:"
+          ls -R build/reports || true
           echo "Searching for the JaCoCo XML report..."
-          REPORT_PATH=$(find /home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test -name "*.xml" | head -n 1)
+          REPORT_PATH=$(find build/reports -name "*.xml" | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "No XML report found in the directory."
             exit 1
@@ -48,7 +50,7 @@ jobs:
 
       - name: Validate Coverage
         run: |
-          REPORT_PATH=$(find /home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test -name "*.xml" | head -n 1)
+          REPORT_PATH=$(find build/reports -name "*.xml" | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "Coverage report not found."
             exit 1
@@ -62,7 +64,7 @@ jobs:
 
       - name: Upload coverage report to Codacy
         run: |
-          REPORT_PATH=$(find /home/runner/work/payments-api-test-coverage/payments-api-test-coverage/build/reports/tests/test -name "*.xml" | head -n 1)
+          REPORT_PATH=$(find build/reports -name "*.xml" | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "No coverage report found to upload."
             exit 1
@@ -70,7 +72,8 @@ jobs:
           curl -Ls https://coverage.codacy.com/get.sh | bash
           ./codacy-coverage-reporter report \
             --token ${{ secrets.CODACY_PROJECT_TOKEN }} \
-            --coverage-reports "$REPORT_PATH"  
+            --coverage-reports "$REPORT_PATH"
+
   build:
     runs-on: ubuntu-latest
     
