@@ -91,4 +91,12 @@ kover {
     }
 }
 
+sourceSets {
+    test {
+        resources {
+            srcDirs = ["src/test"]
+        }
+    }
+}
+
 tasks.check.dependsOn("koverXmlReport", "koverHtmlReport") // Garante que os relatórios sejam gerados no check
