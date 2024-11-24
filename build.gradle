@@ -94,7 +94,7 @@ kover {
 sourceSets {
     test {
         resources {
-            srcDirs = ["src/test"]
+            srcDirs = ["src/test/java/br/com/fiap/grupo30/fastfood/payments_api"]
         }
     }
 }
