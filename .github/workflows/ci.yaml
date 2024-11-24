@@ -25,50 +25,48 @@ jobs:
       - name: Grant execute permission for Gradlew
         run: chmod +x ./gradlew
 
-      - name: Install xmllint
-        run: sudo apt-get install -y libxml2-utils
-
       - name: Run Spotless Apply
         run: ./gradlew spotlessApply
 
       - name: Run Spotless Check
         run: ./gradlew spotlessCheck
   
-      - name: Run tests with Kover coverage
+      - name: Run tests and generate Kover report
         run: |
-          ./gradlew clean check
-          echo "Kover reports generated at:"
+          ./gradlew clean test koverXmlReport koverHtmlReport
+          echo "Generated Kover reports:"
           ls -R build/reports/kover || echo "No Kover reports found."
-
-          echo "Tests executed:"
-          ./gradlew test --info
 
       - name: Extract and display coverage percentage
         run: |
+          # Find the Kover XML report
           REPORT_PATH=$(find build/reports/kover -name "report.xml" | head -n 1)
           if [ -z "$REPORT_PATH" ]; then
             echo "Kover coverage report not found!"
             exit 1
           fi
+
           echo "Found Kover XML report at: $REPORT_PATH"
-          
-          # Display the content of the XML report for debugging
+
+          # Display the content of the XML report
           echo "Content of $REPORT_PATH:"
           cat "$REPORT_PATH"
 
-          # Extract line coverage percentage
-          LINE_MISSED=$(xmllint --xpath 'string(//counter[@type="LINE"]/@missed)' "$REPORT_PATH")
-          LINE_COVERED=$(xmllint --xpath 'string(//counter[@type="LINE"]/@covered)' "$REPORT_PATH")
+          # Extract coverage percentage using xmllint
+          COVERAGE=$(xmllint --xpath 'string(//counter[@type="LINE"]/@covered)' "$REPORT_PATH")
+          MISSED=$(xmllint --xpath 'string(//counter[@type="LINE"]/@missed)' "$REPORT_PATH")
 
-          TOTAL_LINES=$((LINE_MISSED + LINE_COVERED))
-          if [ "$TOTAL_LINES" -eq 0 ]; then
-            echo "No lines found in the report. Is the project being tested?"
+          if [ -z "$COVERAGE" ] || [ -z "$MISSED" ]; then
+            echo "No coverage data found in the report."
             exit 1
           fi
 
-          PERCENTAGE=$(echo "scale=2; ($LINE_COVERED / $TOTAL_LINES) * 100" | bc)
-          echo "Line coverage: $PERCENTAGE%"
+          # Calculate the percentage
+          TOTAL=$((COVERAGE + MISSED))
+          PERCENTAGE=$(echo "scale=2; ($COVERAGE / $TOTAL) * 100" | bc)
 
+          echo "Coverage: $PERCENTAGE%"
+          
           # Validate coverage percentage
           MINIMUM=50.0
           if (( $(echo "$PERCENTAGE < $MINIMUM" | bc -l) )); then
@@ -76,7 +74,6 @@ jobs:
             exit 1
           fi
           echo "Coverage validation passed with $PERCENTAGE%."
-
   build:
     runs-on: ubuntu-latest
     
