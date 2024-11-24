@@ -25,6 +25,9 @@ jobs:
       - name: Grant execute permission for Gradlew
         run: chmod +x ./gradlew
 
+      - name: Install xmllint
+        run: sudo apt-get install -y libxml2-utils
+
       - name: Run Spotless Apply
         run: ./gradlew spotlessApply
 
@@ -49,6 +52,19 @@ jobs:
           # Display the content of the XML report for debugging
           echo "Content of $REPORT_PATH:"
           cat "$REPORT_PATH"
+
+          # Extract line coverage percentage
+          LINE_MISSED=$(xmllint --xpath 'string(//counter[@type="LINE"]/@missed)' "$REPORT_PATH")
+          LINE_COVERED=$(xmllint --xpath 'string(//counter[@type="LINE"]/@covered)' "$REPORT_PATH")
+
+          TOTAL_LINES=$((LINE_MISSED + LINE_COVERED))
+          if [ "$TOTAL_LINES" -eq 0 ]; then
+            echo "No lines found in the report. Is the project being tested?"
+            exit 1
+          fi
+
+          PERCENTAGE=$(echo "scale=2; ($LINE_COVERED / $TOTAL_LINES) * 100" | bc)
+          echo "Line coverage: $PERCENTAGE%"
 
           # Validate coverage percentage
           MINIMUM=50.0
