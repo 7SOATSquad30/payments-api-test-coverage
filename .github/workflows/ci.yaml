@@ -25,6 +25,11 @@ jobs:
       - name: Grant execute permission for Gradlew
         run: chmod +x ./gradlew
 
+      - name: Install xmllint
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxml2-utils
+
       - name: Run Spotless Apply
         run: ./gradlew spotlessApply
 
@@ -53,17 +58,17 @@ jobs:
           cat "$REPORT_PATH"
 
           # Extract coverage percentage using xmllint
-          COVERAGE=$(xmllint --xpath 'string(//counter[@type="LINE"]/@covered)' "$REPORT_PATH")
+          COVERED=$(xmllint --xpath 'string(//counter[@type="LINE"]/@covered)' "$REPORT_PATH")
           MISSED=$(xmllint --xpath 'string(//counter[@type="LINE"]/@missed)' "$REPORT_PATH")
 
-          if [ -z "$COVERAGE" ] || [ -z "$MISSED" ]; then
+          if [ -z "$COVERED" ] || [ -z "$MISSED" ]; then
             echo "No coverage data found in the report."
             exit 1
           fi
 
           # Calculate the percentage
-          TOTAL=$((COVERAGE + MISSED))
-          PERCENTAGE=$(echo "scale=2; ($COVERAGE / $TOTAL) * 100" | bc)
+          TOTAL=$((COVERED + MISSED))
+          PERCENTAGE=$(echo "scale=2; ($COVERED / $TOTAL) * 100" | bc)
 
           echo "Coverage: $PERCENTAGE%"
           
@@ -74,6 +79,7 @@ jobs:
             exit 1
           fi
           echo "Coverage validation passed with $PERCENTAGE%."
+          
   build:
     runs-on: ubuntu-latest
     
