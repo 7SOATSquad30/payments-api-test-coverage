@@ -40,6 +40,9 @@ jobs:
           echo "Kover reports generated at:"
           ls -R build/reports/kover || echo "No Kover reports found."
 
+          echo "Tests executed:"
+          ./gradlew test --info
+
       - name: Extract and display coverage percentage
         run: |
           REPORT_PATH=$(find build/reports/kover -name "report.xml" | head -n 1)
