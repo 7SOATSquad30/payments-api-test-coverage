@@ -80,14 +80,8 @@ kover {
     }
     filters {
         classes {
-            // Inclui apenas as classes nos pacotes `br.com.fiap.grupo30`
-            includes += ["br.com.fiap.grupo30.*"]
-            
-            // Exclui classes de teste ou utilitárias, se necessário
-            excludes += [
-                "br.com.fiap.grupo30.fastfood.payments_api.tests.*", // Exemplo: classes de teste
-                "br.com.fiap.grupo30.fastfood.payments_api.utils.*"  // Exemplo: classes utilitárias
-            ]
+            includes += ["br.com.fiap.grupo30.fastfood.*"] // Incluir os pacotes corretos
+            excludes += ["br.com.fiap.grupo30.fastfood.tests.*"] // Opcional: excluir pacotes irrelevantes
         }
     }
 }
