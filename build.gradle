@@ -88,7 +88,9 @@ kover {
 
 sourceSets {
     test {
-        resources.srcDirs = [] // Ignora a pasta test/resources
+        resources {
+            srcDirs = ["src/test/java/br/com/fiap/grupo30/fastfood/payments_api"]
+        }
     }
 }
 
