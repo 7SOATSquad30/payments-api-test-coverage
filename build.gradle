@@ -81,7 +81,6 @@ kover {
     filters {
         classes {
             includes += ["br.com.fiap.grupo30.fastfood.*"] // Incluir os pacotes corretos
-            excludes += ["br.com.fiap.grupo30.fastfood.tests.*"] // Opcional: excluir pacotes irrelevantes
         }
     }
 }
