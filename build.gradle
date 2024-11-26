@@ -88,10 +88,9 @@ kover {
 
 sourceSets {
     test {
-        resources {
-            srcDirs = ["src/test/java/br/com/fiap/grupo30/fastfood/payments_api"]
-        }
+        resources.srcDirs = [] // Ignora a pasta test/resources
     }
 }
+
 
 tasks.check.dependsOn("koverXmlReport", "koverHtmlReport") // Garante que os relatórios sejam gerados no check
